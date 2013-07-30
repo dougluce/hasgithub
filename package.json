@@ -1,0 +1,34 @@
+{
+    "name": "hasgithub",
+    "version": "0.9.0",
+    "description": "Aggregating github issues and pull requests",
+    "author": {
+	"name": "Allen Luce",
+	"email": "allen@hasoffers.com"
+    },
+    "repository": {
+	"type": "git",
+	"url": "git://github.com/hasallen/hasgithub.git"
+    },
+    "private": true,
+    "dependencies": {
+	"express": "3.0.6",
+	"stylus": "0.31.0",
+	"teacup": "git://github.com/dougluce/teacup#honor-assets-cache-setting",
+	"mongodb": "1.2.7",
+	"connect-assets": "2.4.2",
+	"coffee-script": "1.6.2"
+    },
+    "devDependencies": {
+	"mocha": "1.9.0",
+	"sinon": "1.6.0"
+    },
+    "scripts": {
+	"test": "cake test",
+	"start": "coffee app.litcoffee"
+    },
+    "engines": {
+	"node": "0.8.14",
+	"npm": "1.1.65"
+    }
+}
