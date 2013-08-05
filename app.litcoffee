@@ -3,6 +3,11 @@
     app = express()
     CoffeeScript = require 'coffee-script'
     teacup = require 'teacup'
+    everyauth = require('everyauth')
+
+    config =
+      ghClientId: '3ce057dbdc810161435f'
+      ghSecret: 'ef380838d7baa029b4cf5d34dc20de9f02c19ba8'
 
     connectConfig =
       src: 'app/public'
@@ -21,6 +26,20 @@
     global.cdn_css = (url) ->
       teacup.css("#{css_libs_path}/#{url}")
 
+    everyauth.github
+      .appId(config.ghClientId)
+      .appSecret(config.ghSecret)
+      .findOrCreateUser((session, accessToken, accessTokenExtra, githubUserMetadata) ->
+        session.oauth = accessToken
+        session.uid = githubUserMetadata.login)
+      .redirectPath '/'
+
+    everyauth.everymodule.handleLogout (req, res) ->
+      req.logout()
+      req.session.uid = null
+      res.writeHead 303, { 'Location': this.logoutRedirectPath() }
+      res.end()
+
     app.configure ->
       app.set 'port', 33333
       app.set 'views', __dirname + '/views'
@@ -34,6 +53,7 @@
       app.set 'view engine', 'coffee'
       app.use require('stylus').middleware src: __dirname + '/assets'
       app.use express.static __dirname + '/assets'
+      app.use everyauth.middleware()
     
     app.configure 'production', ->
       global.js_libs_path = '//cdnjs.cloudflare.com/ajax/libs/'
