@@ -1,7 +1,10 @@
-    gha = require "node-github"
     https = require 'https'
     querystring = require 'querystring'
     async = require 'async'
+
+Github treats multiple selected labels/filters as a conjunctive join.
+We're going to do this disjunctively so we can see all the different
+tickets in the various states.
 
     issueFilters = [
       {labels: 'completed', state: 'closed'}
@@ -9,24 +12,27 @@
       {labels: 'complete - pending'}
       {labels: 'production - review'}
     ]
-      
+
+A fixed milestone
+                  
     milestone = 1
       
     exports.show = (user, token, res) ->
+
+Every query will have the same access token and milestone.
+            
       getIssues = getIssuesPreFiltered {access_token: token, milestone: milestone}
-      async.map issueFilters, getIssues, (err, results) ->
-        accumulated = []
-        for data in results
-          data = JSON.parse data
-          for item in data
-            accumulated.push item
-        res.render 'index', {issues: accumulated, token: token}
+      async.concat issueFilters, getIssues, (err, results) ->
+        res.render 'index', {issues: results, token: token}
+
+A currying function that returns a function that'll always query with
+the fixed filters while adding in the changing filters on each call.
 
     getIssuesPreFiltered = (fixedFilters) ->
       (filters, cb) ->
-        label = encodeURIComponent label
-        for key,val of fixedFilters
+        for key, val of fixedFilters
           filters[key] = val
+        label = encodeURIComponent label
         filters = querystring.stringify filters
         opts =
           host: "api.github.com"
@@ -39,6 +45,6 @@
           resp.on 'data', (chunk) ->
             data += chunk;
           resp.on 'end', ->
-            cb '', data
+            cb '', JSON.parse data
         request.end()
 
