@@ -1,12 +1,9 @@
-{renderable, div, h1, a, br, p} = require 'teacup'
+{renderable, li, a, br, p, text} = require 'teacup'
 
-module.exports = renderable ({username, repos, token}) ->
-  p 'hey there ' + username + '!'
-  br
-  br
-  p 'your repos:'
-  for repo in repos
+module.exports = renderable ({issues, token}) ->
+  for i in issues
     p ->
-      a href: repo.url + token, repo.name
-      br
-      p repo.description
+      text i.title
+      br()
+      a href: i.url, i.url
+    

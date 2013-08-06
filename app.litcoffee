@@ -6,8 +6,8 @@
     everyauth = require('everyauth')
 
     config =
-      ghClientId: '3ce057dbdc810161435f'
-      ghSecret: 'ef380838d7baa029b4cf5d34dc20de9f02c19ba8'
+      ghClientId: '99561e4c5799754897da'
+      ghSecret: 'fe0047c698edd16789940a5a544ab3ab889a76e4'
 
     connectConfig =
       src: 'app/public'
@@ -29,6 +29,7 @@
     everyauth.github
       .appId(config.ghClientId)
       .appSecret(config.ghSecret)
+      .scope('user,repo')
       .findOrCreateUser((session, accessToken, accessTokenExtra, githubUserMetadata) ->
         session.oauth = accessToken
         session.uid = githubUserMetadata.login)
