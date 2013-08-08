@@ -25,8 +25,8 @@ Every query will have the same access token and milestone.
       async.concat issueFilters, getIssues, (err, results) ->
         res.render 'index', {issues: results, token: token}
 
-A currying function that returns a function that'll always query with
-the fixed filters while adding in the changing filters on each call.
+This returns a curried function that'll query issues with the fixed
+filters while adding the filters given on each call.
 
     getIssuesPreFiltered = (fixedFilters) ->
       (filters, cb) ->

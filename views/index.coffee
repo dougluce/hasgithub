@@ -5,5 +5,4 @@ module.exports = renderable ({issues, token}) ->
     p ->
       text i.title
       br()
-      a href: i.url, i.url
-    
+      a href: i.html_url, i.html_url
