@@ -10,12 +10,14 @@ tickets in the various states.
       {labels: 'completed', state: 'closed'}
       {labels: 'complete - pending', state: 'closed'}
       {labels: 'complete - pending'}
+      {labels: 'completed'}
+      {labels: 'completed', state: 'closed'}
       {labels: 'production - review'}
     ]
 
 A fixed milestone
                   
-    milestone = 1
+    milestone = 4
       
     exports.show = (user, token, res) ->
 
@@ -23,6 +25,7 @@ Every query will have the same access token and milestone.
             
       getIssues = getIssuesPreFiltered {access_token: token, milestone: milestone}
       async.concat issueFilters, getIssues, (err, results) ->
+        results.sort (a,b) -> a.number > b.number
         res.render 'index', {issues: results, token: token}
 
 This returns a curried function that'll query issues with the fixed
