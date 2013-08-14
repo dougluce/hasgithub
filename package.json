@@ -27,7 +27,7 @@
     },
     "scripts": {
 	"test": "cake test",
-	"start": "coffee app.litcoffee"
+	"start": "supervisor app.litcoffee"
     },
     "engines": {
 	"node": "0.10.15",
