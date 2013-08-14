@@ -42,7 +42,6 @@
       res.end()
 
     app.configure ->
-      app.set 'port', 33333
       app.set 'views', __dirname + '/views'
       app.locals.pretty = true
       app.use express.bodyParser()
@@ -61,6 +60,7 @@
       global.css_libs_path = '//cdnjs.cloudflare.com/ajax/libs/'
 
     app.configure 'development', ->
+      app.set 'port', 33333
       global.js_libs_path = 'cdn'
       global.css_libs_path = 'cdn'
       app.use express.errorHandler()
