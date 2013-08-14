@@ -56,6 +56,7 @@
       app.use everyauth.middleware()
     
     app.configure 'production', ->
+      app.set 'port', process.env.PORT
       global.js_libs_path = '//cdnjs.cloudflare.com/ajax/libs/'
       global.css_libs_path = '//cdnjs.cloudflare.com/ajax/libs/'
 
