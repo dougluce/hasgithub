@@ -20,7 +20,8 @@
 	"coffee-script": ">=1.6.2",
 	"node-github": ">=0.0.3",
 	"async": ">=0.2.9",
-	"everyauth": ">=0.4.5"
+	"everyauth": ">=0.4.5",
+	"jade": ">=0.34.1"
     },
     "devDependencies": {
 	"mocha": ">=1.9.0",
