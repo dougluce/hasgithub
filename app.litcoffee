@@ -6,8 +6,12 @@
     everyauth = require('everyauth')
 
     config =
-      ghClientId: '99561e4c5799754897da'
-      ghSecret: 'fe0047c698edd16789940a5a544ab3ab889a76e4'
+      development:
+        ghClientId: '6fa758b2f1d037fcb311'
+        ghSecret: 'ca8e4785d95d181565effa3a056df83a2306c24f'
+      production:
+        ghClientId: '99561e4c5799754897da'
+        ghSecret: 'fe0047c698edd16789940a5a544ab3ab889a76e4'
 
     connectConfig =
       src: 'app/public'
@@ -27,8 +31,8 @@
       teacup.css("#{css_libs_path}/#{url}")
 
     everyauth.github
-      .appId(config.ghClientId)
-      .appSecret(config.ghSecret)
+      .appId(config[app.settings.env].ghClientId)
+      .appSecret(config[app.settings.env].ghSecret)
       .scope('user,repo')
       .findOrCreateUser((session, accessToken, accessTokenExtra, githubUserMetadata) ->
         session.oauth = accessToken
