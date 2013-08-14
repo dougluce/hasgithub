@@ -38,7 +38,7 @@ Every query will have the same access token and milestone.
       getIssues = getIssuesPreFiltered {access_token: token, milestone: milestone}
       async.concat currentIssueFilters, getIssues, (err, results) ->
         results.sort (a,b) -> a.number > b.number
-        res.render 'index', {issues: results, token: token}
+        res.render 'sprint', {issues: results, token: token}
 
 This returns a curried function that'll query issues with the fixed
 filters while adding the filters given on each call.

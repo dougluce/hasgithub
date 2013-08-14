@@ -6,10 +6,10 @@ The main page.
 
       app.get '/', (req, res) ->
         if req.session && req.session.uid
-          res.redirect '/index'
+          res.redirect '/sprint'
         res.render 'login'
 
-      app.get '/index', (req, res) ->
+      app.get '/sprint', (req, res) ->
         if !req.session.uid
           return res.redirect '/'
         issues.show(req.session.uid, req.session.oauth, res)
