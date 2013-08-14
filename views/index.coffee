@@ -30,7 +30,10 @@ module.exports = renderable ({issues, token}) ->
         text "Assignee: " + login
   p ->
     text "Total points: " + total
-    
-  for dev, pts of points
-    p ->
-      text "For " + dev + ": " + pts + " points"
+
+  h3 'Per-dev point assignments'
+  ul ->
+    for dev, pts of points
+      li "For " + dev + ": " + pts + " points"
+  p "Estimated team capacity: 80 points/week"
+  p "Estimated Lee capacity: 8029384023000 points/week"
