@@ -1,2 +1,4 @@
 node_modules
+.ackrc
+server/npm-debug.log
 *~
