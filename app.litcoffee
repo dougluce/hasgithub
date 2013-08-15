@@ -14,7 +14,7 @@
         ghSecret: 'fe0047c698edd16789940a5a544ab3ab889a76e4'
 
     connectConfig =
-      src: 'app/public'
+      src: 'public'
       jsDir: 'js'
       cssDir: 'css'
       jsCompilers: 

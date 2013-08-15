@@ -6,13 +6,10 @@ The main page.
 
       app.get '/', (req, res) ->
         if req.session && req.session.uid
-          res.redirect '/sprint'
+          return res.render 'index'
         res.render 'login'
 
-      app.get '/sprint', (req, res) ->
-        if !req.session.uid
-          return res.redirect '/'
-        issues.sprint(req.session.uid, req.session.oauth, res)
+      mapget app, '/sprint', issues.sprint
      
       app.get '/armageddon', (req, res) ->
         if !req.session.uid
@@ -23,7 +20,8 @@ The main page.
         res.status 404
         res.render '404', title: 'Page Not Found'
 
-    authcall = (req, res, call) ->
-      if !req.session.uid
-        return res.redirect '/'
-      call()      
+    mapget = (app, url, call)  ->
+      app.get url, (req, res) ->
+        if !req.session.uid
+          return res.redirect '/'
+        call req.session.uid, req.session.oauth, res

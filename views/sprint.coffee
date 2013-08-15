@@ -1,7 +1,7 @@
 {renderable, li, a, br, p, text, h3, b, ul} = require 'teacup'
 sprintf = require('util').format
 
-module.exports = renderable ({issues, token}) ->
+module.exports = renderable ({issues}) ->
   total = 0
   points = {}
 

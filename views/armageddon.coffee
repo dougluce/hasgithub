@@ -1,5 +1,27 @@
-{renderable, li, a, br, p, text, h3, b, ul} = require 'teacup'
+{renderable, li, a, br, p, text, h3, h4, b, ul, css, span} = require 'teacup'
 sprintf = require('util').format
+
+issue = (i) ->
+  login = "Unassigned"
+  if repo = i.html_url.match /https:\/\/github.com\/\S+\/(\S+)\/issues/
+    repo = repo[1]
+  
+  if i.assignee
+    login = i.assignee.login
+
+  li ->
+    b ->
+      text sprintf "%s:#%d: ", repo, i.number
+      a href: i.html_url, i.title
+    br()
+    text "Assignee: " + login
+    br()
+    labels i
+
+labels = (i) ->
+  span '.labels', ->
+    for label in i.labels
+      span '.label', style: "background-color: #" + label.color, label.name
 
 module.exports = renderable ({issues, token}) ->
   total = 0
@@ -10,36 +32,36 @@ module.exports = renderable ({issues, token}) ->
   h3 ->
     text issues.length + ' issues to avoid Armageddon'
 
+  milestones = {}
+  nostones = []
 # separate by milestone
+  for i in issues
+    if i.milestone?
+      milestones[i.milestone.title] ?= []
+      milestones[i.milestone.title].push i
+    else
+      nostones.push i
+
 # show based on priority?
 # show state
+# 
+  stones = (key for key, issues of milestones)
 
-  ul ->
-    for i in issues
+  stones.sort (a,b) ->
+    a = new Date(a)
+    b= new Date(b)
+    return -1 if a<b
+    return -1 if a>b
+    return 0
+    
+  for stone in stones
+    h4 'Milestone: ' + stone
+    ul ->
+      for i in milestones[stone]
+        issue i
 
-      if est = i.body.match /Estimate: (\d+)/
-        est = est[1]
-      else est = 0
-      total += parseInt(est)
-      login = "Unassigned"
-      if i.assignee
-        login = i.assignee.login
-      points[login] = 0 unless points[login]
-      points[login] += parseInt(est)
-
-      li ->
-        b ->
-          a href: i.html_url, sprintf "#%d: %s", i.number, i.title
-        br()
-        text "Points: " + est + " points"
-        br()
-        text "Assignee: " + login
-  p ->
-    text "Total points: " + total
-
-  h3 'Per-dev point assignments'
-  ul ->
-    for dev, pts of points
-      li "For " + dev + ": " + pts + " points"
-  p "Estimated team capacity: 80 points/week"
-  p "Estimated Lee capacity: 8029384023000 points/week"
+  if nostones.length > 0
+    h4 'No milestone'
+    ul ->
+      for i in nostones
+        issue i
