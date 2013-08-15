@@ -10,12 +10,10 @@ The main page.
         res.render 'login'
 
       mapget app, '/sprint', issues.sprint
-     
-      app.get '/armageddon', (req, res) ->
-        if !req.session.uid
-          return res.redirect '/'
-        issues.armageddon(req.session.uid, req.session.oauth, res)
-     
+      mapget app, '/milestones/:user', issues.milestones
+      mapget app, '/milestones', issues.milestones
+      mapget app, '/armageddon', issues.armageddon
+
       app.get '*', (req, res) ->
         res.status 404
         res.render '404', title: 'Page Not Found'
@@ -24,4 +22,4 @@ The main page.
       app.get url, (req, res) ->
         if !req.session.uid
           return res.redirect '/'
-        call req.session.uid, req.session.oauth, res
+        call req.session.uid, req.session.oauth, res, req

@@ -23,15 +23,21 @@ labels = (i) ->
     for label in i.labels
       span '.label', style: "background-color: #" + label.color, label.name
 
-module.exports = renderable ({issues, token}) ->
+module.exports = renderable ({issues, users}) ->
   total = 0
   points = {}
 
   css 'app'
 
   h3 ->
-    text issues.length + ' issues to avoid Armageddon'
+    text issues.length + ' issues in development across all repos'
 
+  for user in users
+    a href: '/milestones/' + user, user
+    text ' '
+
+  a href: '/milestones', 'all'
+   
   milestones = {}
   nostones = []
 # separate by milestone
@@ -42,17 +48,29 @@ module.exports = renderable ({issues, token}) ->
     else
       nostones.push i
 
-# show based on priority?
 # show state
 # 
   stones = (key for key, issues of milestones)
 
   stones.sort (a,b) ->
     a = new Date(a)
-    b= new Date(b)
+    b = new Date(b)
     return -1 if a<b
     return 1 if a>b
     return 0
+
+# sub-sort based on priority
+  priority = (issue) ->
+    for l in issue.labels
+      if pri = l.name.match /priority (\d+)/
+        return pri[1]
+    return 9999
+
+  for stone in stones
+    milestones[stone].sort (a,b) ->
+      return -1 if priority(a) < priority(b)
+      return 1 if priority(a) > priority(b)
+      return 0
     
   for stone in stones
     h4 'Milestone: ' + stone

@@ -77,15 +77,38 @@ Armageddon (i.e. everything labeled across these repos with
 
 Every query will have the same access token and label.
 
-      getArmIssues = getArmIssuesPreFiltered {access_token: token, labels: 'development'}
+      getArmIssues = getRepoIssuesPreFiltered {access_token: token, labels: 'development'}
       async.concat MATRepos, getArmIssues, (err, results) ->
-        results.sort (a,b) -> a.number > b.number
         res.render 'armageddon', {issues: results}
+
+Milestones Report.  Show the tickets to be done across repos for each
+milestone.
+
+    exports.milestones = (user, token, res, req) ->
+
+Every query will have the same access token and label.
+
+      getIssues = getRepoIssuesPreFiltered {access_token: token, labels: 'development'}
+      async.concat MATRepos, getIssues, (err, results) ->
+        issues = []
+        userhash = {}
+        for issue in results
+          if issue.assignee?
+            userhash[issue.assignee.login] = 1
+          if req.params.user?
+            issues.push issue if issue.assignee? and req.params.user == issue.assignee.login
+          else  
+            issues.push issue
+        users = []
+        for user, n of userhash
+          users.push user
+
+        res.render 'milestones', {issues: issues, users: users}
 
 This returns a curried function that'll query issues in the named repo
 with the fixed filters while adding the filters given on each call.
 
-    getArmIssuesPreFiltered = (filters) ->
+    getRepoIssuesPreFiltered = (filters) ->
       filters = querystring.stringify filters
       (repo, cb) ->
         opts =
