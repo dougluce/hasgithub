@@ -21,8 +21,8 @@ These are the issues that are in development.
       {labels: 'development', state: 'open'}
     ]
       
-These are the filters used for showing the issues that were pushed
-during this last deployment.
+These filters show the issues that were pushed during the last
+deployment.
 
     pushIssueFilters = [
       {labels: 'completed', state: 'closed'}
@@ -33,11 +33,16 @@ during this last deployment.
       {labels: 'production - review'}
     ]
 
-A fixed milestone
+A fixed milestone.
                   
     milestone = 2
+
+The repo we're doing a sprint out of.
+    
     sprintRepo = 'MobileAppTracking/tracking_engine'
-      
+
+The sprint call itself.
+                  
     exports.sprint = (user, token, res) ->
 
 Every query will have the same access token and milestone.
@@ -73,13 +78,16 @@ The Armageddon Report.  Show the tickets to be done to avoid
 Armageddon (i.e. everything labeled across these repos with
 'armageddon').
 
-    exports.armageddon = (user, token, res) ->
+    exports.armageddon = (user, token, res, req) ->
 
 Every query will have the same access token and label.
 
       getArmIssues = getRepoIssuesPreFiltered {access_token: token, labels: 'armageddon'}
       async.concat MATRepos, getArmIssues, (err, results) ->
-        res.render 'armageddon', {issues: results}
+        issues = results
+        if req.params.user?
+          issues = filterByUser results, req.params.user
+        res.render 'armageddon', {issues: issues, users: issueUsers results}
 
 Milestones Report.  Show the tickets to be done across repos for each
 milestone.
@@ -90,20 +98,10 @@ Every query will have the same access token and label.
 
       getIssues = getRepoIssuesPreFiltered {access_token: token, labels: 'development'}
       async.concat MATRepos, getIssues, (err, results) ->
-        issues = []
-        userhash = {}
-        for issue in results
-          if issue.assignee?
-            userhash[issue.assignee.login] = 1
-          if req.params.user?
-            issues.push issue if issue.assignee? and req.params.user == issue.assignee.login
-          else  
-            issues.push issue
-        users = []
-        for user, n of userhash
-          users.push user
-
-        res.render 'milestones', {issues: issues, users: users}
+        issues = results
+        if req.params.user?
+          issues = filterByUser results, req.params.user
+        res.render 'milestones', {issues: issues, users: issueUsers results}
 
 This returns a curried function that'll query issues in the named repo
 with the fixed filters while adding the filters given on each call.
@@ -125,3 +123,24 @@ with the fixed filters while adding the filters given on each call.
             cb '', JSON.parse data
         request.end()
 
+Given a list of issues, return an array of the logins of all the users
+that are assignees on those issues.
+
+    issueUsers = (issues) ->
+      userhash = {}
+      for issue in issues
+        if issue.assignee?
+          userhash[issue.assignee.login] = 1
+      users = []
+      for user, n of userhash
+        users.push user
+      users
+
+Given a list of issues, return an array of issues that are assigned to
+this given user.
+
+    filterByUser = (issues, user) ->
+      filtered = []
+      for issue in issues
+        filtered.push issue if issue.assignee? and user == issue.assignee.login
+      filtered

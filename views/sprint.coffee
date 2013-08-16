@@ -1,9 +1,14 @@
-{renderable, li, a, br, p, text, h3, b, ul} = require 'teacup'
+{renderable, li, a, br, p, text, h3, b, ul, css} = require 'teacup'
 sprintf = require('util').format
+utils = require './template-utils'
 
 module.exports = renderable ({issues}) ->
   total = 0
   points = {}
+  
+  issues.sort utils.prisort
+  
+  css 'app'
 
   h3 ->
     text issues.length + ' issues due for 8/20/2013 '
@@ -21,13 +26,8 @@ module.exports = renderable ({issues}) ->
       points[login] = 0 unless points[login]
       points[login] += parseInt(est)
 
-      li ->
-        b ->
-          a href: i.html_url, sprintf "#%d: %s", i.number, i.title
-        br()
-        text "Points: " + est + " points"
-        br()
-        text "Assignee: " + login
+      utils.issue i
+      
   p ->
     text "Total points: " + total
 

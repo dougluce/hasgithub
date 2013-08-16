@@ -12,6 +12,7 @@ The main page.
       mapget app, '/sprint', issues.sprint
       mapget app, '/milestones/:user', issues.milestones
       mapget app, '/milestones', issues.milestones
+      mapget app, '/armageddon/:user', issues.armageddon
       mapget app, '/armageddon', issues.armageddon
 
       app.get '*', (req, res) ->
