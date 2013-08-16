@@ -48,5 +48,5 @@ exports.showusers = (repo, users) ->
   for user in users
     a href: repo + user, user
     text ' '
-  a href: '/milestones', 'all'
+  a href: repo, 'all'
    
