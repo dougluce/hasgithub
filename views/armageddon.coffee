@@ -28,13 +28,8 @@ module.exports = renderable ({issues, users}) ->
 # 
   stones = (key for key, issues of milestones)
 
-  stones.sort (a,b) ->
-    a = new Date(a)
-    b= new Date(b)
-    return -1 if a<b
-    return 1 if a>b
-    return 0
-    
+  stones.sort utils.datesort
+  
   for stone in stones
     h4 'Milestone: ' + stone
     ul ->
