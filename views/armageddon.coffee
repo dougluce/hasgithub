@@ -15,17 +15,19 @@ module.exports = renderable ({issues, users}) ->
 
   milestones = {}
   nostones = []
+
 # separate by milestone
+
   for i in issues
+    console.log i
     if i.milestone?
       milestones[i.milestone.title] ?= []
       milestones[i.milestone.title].push i
     else
       nostones.push i
 
-# show based on priority?
 # show state
-# 
+
   stones = (key for key, issues of milestones)
 
   stones.sort utils.datesort
