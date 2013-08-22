@@ -12,7 +12,8 @@ These are the main repos for MAT.
       'MobileAppTracking/tracking_engine'
       'MobileAppTracking/api'
       'MobileAppTracking/reporting'
-      'MobileAppTracking/dataflow'
+      'MobileAppTracking/Dataflow'
+      'MobileAppTracking/schema'
     ]
 
 These are the issues that are in development.
