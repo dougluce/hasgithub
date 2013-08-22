@@ -4,11 +4,7 @@ sprintf = require('util').format
 utils = require './template-utils'
 
 module.exports = renderable ({issues, users}) ->
-  total = 0
-  points = {}
-
   css 'app'
-
   h3 ->
     text issues.length + ' issues in development across all repos'
 
@@ -17,7 +13,7 @@ module.exports = renderable ({issues, users}) ->
   milestones = {}
   nostones = []
 
-# separate by milestone
+# separate by milestone (really, milestone title)
 
   for i in issues
     if i.milestone?
@@ -26,14 +22,11 @@ module.exports = renderable ({issues, users}) ->
     else
       nostones.push i
 
-  stones = (key for key, issues of milestones)
-  stones.sort utils.datesort
-
-  for stone in stones
-    milestones[stone].sort utils.prisort # sub-sort based on priority
-    h4 'Milestone: ' + stone
+  for title in Object.keys(milestones).sort utils.datesort
+    milestones[title].sort utils.prisort # sub-sort based on priority
+    h4 'Milestone: ' + title
     ul ->
-      for i in milestones[stone]
+      for i in milestones[title]
         utils.issue i
 
   if nostones.length > 0
