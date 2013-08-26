@@ -3,12 +3,13 @@ sprintf = require('util').format
 
 utils = require './template-utils'
 
-module.exports = renderable ({issues, users}) ->
+module.exports = renderable ({issues, users, label}) ->
   css 'app'
   h3 ->
-    text issues.length + ' issues in development across all repos'
+    text issues.length + ' issues in ' + label + ' across all repos'
 
   utils.showusers '/milestones/', users
+  utils.showlabels '/milestones/', issues
 
   milestones = {}
   nostones = []

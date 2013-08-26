@@ -18,6 +18,7 @@ exports.issue = (i, repo = null) ->
       text "Points: " + est + " points"
 
     br()
+    text "State: " + i.state  + " "
     text "Assignee: " + login + " "
     exports.labels i
 
@@ -44,9 +45,15 @@ exports.datesort = (a,b) ->
   return 1 if a>b
   return 0
 
-exports.showusers = (repo, users) ->
+exports.showusers = (viewname, users) ->
   for user in users
-    a href: repo + user, user
+    a href: viewname + user, user
     text ' '
-  a href: repo, 'all'
+  a href: viewname, 'all'
+   
+exports.showlabels = (viewname, users) ->
+  for user in users
+    a href: viewname + user, user
+    text ' '
+  a href: viewname, 'none'
    

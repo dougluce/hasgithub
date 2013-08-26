@@ -93,16 +93,18 @@ Every query will have the same access token and label.
 Milestones Report.  Show the tickets to be done across repos for each
 milestone.
 
+    milestoneLabel = 'production - review'
+
     exports.milestones = (user, token, res, req) ->
 
 Every query will have the same access token and label.
 
-      getIssues = getRepoIssuesPreFiltered {access_token: token, labels: 'development'}
+      getIssues = getRepoIssuesPreFiltered {access_token: token, labels: milestoneLabel}
       async.concat MATRepos, getIssues, (err, results) ->
         issues = results
         if req.params.user?
           issues = filterByUser results, req.params.user
-        res.render 'milestones', {issues: issues, users: issueUsers results}
+        res.render 'milestones', {issues: issues, users: issueUsers(results), label: milestoneLabel}
 
 This returns a curried function that'll query issues in the named repo
 with the fixed filters while adding the filters given on each call.
