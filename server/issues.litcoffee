@@ -83,8 +83,9 @@ Armageddon (i.e. everything labeled across these repos with
 
 Every query will have the same access token and label.
 
-      getArmIssues = getRepoIssuesPreFiltered {access_token: token, labels: 'armageddon'}
-      async.concat MATRepos, getArmIssues, (err, results) ->
+      getOpenArmIssues = getRepoIssuesPreFiltered {access_token: token, labels: 'armageddon'}
+      getClosedArmIssues = getRepoIssuesPreFiltered {access_token: token, state: 'closed', labels: 'armageddon'}
+      async.concat MATRepos, getOpenArmIssues, (err, results) ->
         issues = results
         if req.params.user?
           issues = filterByUser results, req.params.user
