@@ -107,7 +107,7 @@ Every query will have the same access token and label.
         res.render 'milestones', {issues: issues, users: issueUsers(results), label: milestoneLabel}
 
 This returns a curried function that'll query issues in the named repo
-with the fixed filters while adding the filters given on each call.
+with the given fixed filters.
 
     getRepoIssuesPreFiltered = (filters) ->
       filters = querystring.stringify filters
