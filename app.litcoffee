@@ -57,7 +57,7 @@
       app.locals.pretty = true
       app.use express.bodyParser()
       app.use express.cookieParser()
-      app.use express.session secret: 'super-duper-secret-secret'
+      app.use express.session secret: '921a556f5927741d9ffa6f791ca0aebce0cc4f2c'
       app.use express.methodOverride()
       app.engine "coffee", require('teacup/lib/express').renderFile
       app.use require('teacup/lib/connect-assets') connectConfig
