@@ -95,6 +95,7 @@ Milestones Report.  Show the tickets to be done across repos for each
 milestone.
 
     exports.milestones = (user, token, res, req) ->
+      queryToSession req
 
       labels = []
       for item, val of req.query
@@ -104,12 +105,9 @@ milestone.
           
 Every query will have the same access token and labels.
 
-      console.log labels
       getIssues = getRepoIssuesPreFiltered {access_token: token, labels: labels.toString()}
       async.concat MATRepos, getIssues, (err, results) ->
         issues = results
-        if req.query.user?
-          req.session.user = req.query.user
         if req.session.user?
           issues = filterByUser results, req.session.user
         res.render 'milestones', {req: req, issues: issues, users: issueUsers(results)}
@@ -155,3 +153,12 @@ this given user.
       for issue in issues
         filtered.push issue if issue.assignee? and user == issue.assignee.login
       filtered
+
+Take important options in the query string and put them into the session.
+
+    queryToSession = (req) ->
+      # User first
+      if req.query.user?
+        req.session.user = req.query.user
+      if req.query.user == 'ALL' # Special, means no user in particular. 
+        delete req.session.user
