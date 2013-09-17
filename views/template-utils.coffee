@@ -1,4 +1,4 @@
-{li, a, br, text, b, span} = require 'teacup'
+{label, li, a, br, text, b, span, div, input, form} = require 'teacup'
 sprintf = require('util').format
 
 exports.issue = (i, repo = null) ->
@@ -24,8 +24,8 @@ exports.issue = (i, repo = null) ->
 
 exports.labels = (i) ->
   span '.labels', ->
-    for label in i.labels
-      span '.label', style: "background-color: #" + label.color, label.name
+    for ghlabel in i.labels
+      span '.label', style: "background-color: #" + ghlabel.color, ghlabel.name
 
 priority = (issue) ->
   for l in issue.labels
@@ -45,15 +45,25 @@ exports.datesort = (a,b) ->
   return 1 if a>b
   return 0
 
-exports.showusers = (viewname, users) ->
+exports.showusers = (req, viewname, users) ->
   for user in users
-    a href: viewname + user, user
+    if req.session.user? and user == req.session.user
+      b user
+    else
+      a href: viewname + '?user=' + user, user
     text ' '
   a href: viewname, 'all'
    
-exports.showlabels = (viewname, users) ->
-  for user in users
-    a href: viewname + user, user
-    text ' '
-  a href: viewname, 'none'
-   
+exports.showlabels = (req, viewname, issues) ->
+  labels = {}
+  for issue in issues
+    for ghlabel in issue.labels
+      labels[ghlabel.name] = ghlabel.color
+
+  form '.labels', ->
+    for name, color of labels
+      checked = req.query['label-' + name]?
+      label ->
+        input type: 'checkbox', name: 'label-' + name, style: "background-color: #" + color, checked: checked
+        text name
+    input type: 'submit', value: 'Refresh'

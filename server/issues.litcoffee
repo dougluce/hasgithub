@@ -19,7 +19,7 @@ These are the main repos for MAT.
 These are the issues that are in development.
 
     sprintIssueFilters = [
-      {labels: 'development', state: 'open'}
+      {state: 'open'}
     ]
       
 These filters show the issues that were pushed during the last
@@ -94,18 +94,25 @@ Every query will have the same access token and label.
 Milestones Report.  Show the tickets to be done across repos for each
 milestone.
 
-    milestoneLabel = 'production - review'
-
     exports.milestones = (user, token, res, req) ->
 
-Every query will have the same access token and label.
+      labels = []
+      for item, val of req.query
+        console.log item
+        if item.indexOf('label-') == 0
+          labels.push item.replace /^label-/, ''
+          
+Every query will have the same access token and labels.
 
-      getIssues = getRepoIssuesPreFiltered {access_token: token, labels: milestoneLabel}
+      console.log labels
+      getIssues = getRepoIssuesPreFiltered {access_token: token, labels: labels.toString()}
       async.concat MATRepos, getIssues, (err, results) ->
         issues = results
-        if req.params.user?
-          issues = filterByUser results, req.params.user
-        res.render 'milestones', {issues: issues, users: issueUsers(results), label: milestoneLabel}
+        if req.query.user?
+          req.session.user = req.query.user
+        if req.session.user?
+          issues = filterByUser results, req.session.user
+        res.render 'milestones', {req: req, issues: issues, users: issueUsers(results)}
 
 This returns a curried function that'll query issues in the named repo
 with the given fixed filters.
