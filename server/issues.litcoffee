@@ -1,6 +1,7 @@
     https = require 'https'
     querystring = require 'querystring'
     async = require 'async'
+    milestones = require './milestones'
 
 Github treats multiple selected labels/filters as a conjunctive join.
 We're going to do this disjunctively so we can see all the different
@@ -105,12 +106,16 @@ milestone.
           
 Every query will have the same access token and labels.
 
-      getIssues = getRepoIssuesPreFiltered {access_token: token, labels: labels.toString()}
-      async.concat MATRepos, getIssues, (err, results) ->
-        issues = results
-        if req.session.user?
-          issues = filterByUser results, req.session.user
-        res.render 'milestones', {req: req, issues: issues, users: issueUsers(results)}
+      filters = {access_token: token, labels: labels.toString()}
+      if req.query.milestone? and req.query.milestone != 'ALL'
+        filters['milestone'] = parseInt req.query.milestone
+      getIssues = getRepoIssuesPreFiltered filters
+      milestones sprintRepos[1], token, (milestones) ->
+        async.concat MATRepos, getIssues, (err, issues) ->
+          users = issueUsers issues
+          if req.session.user?
+            issues = filterByUser issues, req.session.user
+          res.render 'milestones', {req: req, issues: issues, users: users, allmilestones: milestones}
 
 This returns a curried function that'll query issues in the named repo
 with the given fixed filters.
@@ -129,7 +134,11 @@ with the given fixed filters.
           resp.on 'data', (chunk) ->
             data += chunk;
           resp.on 'end', ->
-            cb '', JSON.parse data
+            data = JSON.parse data
+            if data.message?
+              cb '', null
+            else
+              cb '', data
         request.end()
 
 Given a list of issues, return an array of the logins of all the users

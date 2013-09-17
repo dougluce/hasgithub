@@ -52,7 +52,7 @@ exports.showusers = (req, viewname, users) ->
     else
       a href: viewname + '?user=' + user, user
     text ' '
-  a href: viewname, 'all'
+  a href: viewname + '?user=ALL', 'all'
    
 exports.showlabels = (req, viewname, issues) ->
   labels = {}

@@ -1,12 +1,19 @@
-{renderable, li, a, br, p, text, h3, h4, b, ul, css, span} = require 'teacup'
+{form, select, option, renderable, li, a, br, p, text, h3, h4, b, ul, css, span} = require 'teacup'
 sprintf = require('util').format
 
 utils = require './template-utils'
 
-module.exports = renderable ({req, issues, users}) ->
+module.exports = renderable ({req, issues, users, allmilestones}) ->
   css 'app'
   h3 ->
     text issues.length + ' issues across all repos'
+
+  p ->
+    form ->
+      select name: 'milestone', onchange: 'this.form.submit()', -> 
+        for milestone in allmilestones
+          option value: milestone.number, milestone.title + " [" + milestone.open_issues + '] '
+        option value: 'ALL', 'All Milestones'
 
   utils.showusers req, '/milestones', users
   utils.showlabels req, '/milestones/', issues
