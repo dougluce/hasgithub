@@ -39,6 +39,13 @@
         session.uid = githubUserMetadata.login)
       .redirectPath '/'
 
+    everyauth.oauth2
+      .sendResponse (res, data) ->
+        redirectTo = data.session.redirectTo
+        if redirectTo?
+          delete data.session.redirectTo
+          res.redirect redirectTo
+
     everyauth.everymodule.handleLogout (req, res) ->
       req.logout()
       req.session.uid = null

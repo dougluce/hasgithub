@@ -4,10 +4,13 @@
 
 The main page.
 
+      mapget app, '/', (uid, oauth, res, req) ->
+        res.render 'index'
+
       app.get '/', (req, res) ->
         if req.session && req.session.uid
           return res.render 'index'
-        res.render 'login'
+        res.redirect '/auth/github'
 
       mapget app, '/sprint', issues.sprint
       mapget app, '/milestones/:user', issues.milestones
@@ -22,5 +25,6 @@ The main page.
     mapget = (app, url, call)  ->
       app.get url, (req, res) ->
         if !req.session.uid
-          return res.redirect '/'
+          req.session.redirectTo = url
+          return res.redirect '/auth/github'
         call req.session.uid, req.session.oauth, res, req
