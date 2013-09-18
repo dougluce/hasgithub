@@ -37,34 +37,40 @@ deployment.
 
 A fixed milestone.
                   
-    milestone = 2
+    milestone = 3
 
-The repo we're doing a sprint out of.
+Repos we can sprints for.
     
-    sprintRepo = 'MobileAppTracking/tracking_engine'
+    sprintRepos = [
+      'MobileAppTracking/tracking_engine'
+      'MobileAppTracking/api'
+    ]
 
-The sprint call itself.
+Plan a sprint.
                   
     exports.sprint = (user, token, res) ->
 
 Every query will have the same access token and milestone.
-            
-      getIssues = getIssuesPreFiltered {access_token: token, milestone: milestone}
-      async.concat sprintIssueFilters, getIssues, (err, results) ->
-        results.sort (a,b) -> a.number > b.number
-        res.render 'sprint', {issues: results}
+
+      filters = {access_token: token}
+      filters['milestone'] = milestone if milestone?
+      getIssues = getIssuesPreFiltered filters, sprintRepos[1]
+      milestones sprintRepos[1], token, (milestones) ->
+        async.concat sprintIssueFilters, getIssues, (err, results) ->
+          results.sort (a,b) -> a.number > b.number
+          res.render 'sprint', {issues: results, milestones: milestones}
 
 This returns a curried function that'll query issues with the fixed
 filters while adding the filters given on each call.
 
-    getIssuesPreFiltered = (fixedFilters) ->
+    getIssuesPreFiltered = (fixedFilters, repo) ->
       (filters, cb) ->
         for key, val of fixedFilters
           filters[key] = val
         filters = querystring.stringify filters
         opts =
           host: "api.github.com"
-          path: '/repos/' + sprintRepo + '/issues?' + filters
+          path: '/repos/' + repo + '/issues?' + filters
           method: "GET"
   
         request = https.request opts, (resp) ->

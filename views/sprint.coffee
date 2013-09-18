@@ -1,8 +1,8 @@
-{renderable, li, a, br, p, text, h3, b, ul, css} = require 'teacup'
+{form, select, option, renderable, li, a, br, p, text, h3, b, ul, css} = require 'teacup'
 sprintf = require('util').format
 utils = require './template-utils'
 
-module.exports = renderable ({issues}) ->
+module.exports = renderable ({issues, milestones}) ->
   total = 0
   points = {}
   
@@ -11,7 +11,13 @@ module.exports = renderable ({issues}) ->
   css 'app'
 
   h3 ->
-    text issues.length + ' issues due for 8/20/2013 '
+    text issues.length + ' issues due for 9/10/2013 '
+
+  p ->
+    form ->
+      select name: 'milestone', onchange: 'this.form.submit()', -> 
+        for milestone in milestones
+          option value: milestone.number, milestone.title + " [" + milestone.open_issues + '] '
 
   ul ->
     for i in issues

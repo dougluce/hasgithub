@@ -5,5 +5,5 @@ module.exports = renderable ->
   br()
   a href: '/milestones', "Issues in development by milestone"
   br()
-  a href: '/sprint', "Tracking Engine sprint"
+  a href: '/sprint', "Sprint planner"
   
