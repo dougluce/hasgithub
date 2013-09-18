@@ -100,15 +100,14 @@ milestone.
 
       labels = []
       for item, val of req.query
-        console.log item
         if item.indexOf('label-') == 0
           labels.push item.replace /^label-/, ''
           
 Every query will have the same access token and labels.
 
       filters = {access_token: token, labels: labels.toString()}
-      if req.query.milestone? and req.query.milestone != 'ALL'
-        filters['milestone'] = parseInt req.query.milestone
+      if req.session.milestone? and req.session.milestone != 'ALL'
+        filters['milestone'] = parseInt req.session.milestone
       getIssues = getRepoIssuesPreFiltered filters
       milestones sprintRepos[1], token, (milestones) ->
         async.concat MATRepos, getIssues, (err, issues) ->
@@ -170,4 +169,9 @@ Take important options in the query string and put them into the session.
       if req.query.user?
         req.session.user = req.query.user
       if req.query.user == 'ALL' # Special, means no user in particular. 
-        delete req.session.user
+        delete req.session.user	
+      # now milestone
+      if req.query.milestone?
+        req.session.milestone = req.query.milestone
+      if req.query.milestone == 'ALL'
+        delete req.session.milestone

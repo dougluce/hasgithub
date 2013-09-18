@@ -12,8 +12,14 @@ module.exports = renderable ({req, issues, users, allmilestones}) ->
     form ->
       select name: 'milestone', onchange: 'this.form.submit()', -> 
         for milestone in allmilestones
-          option value: milestone.number, milestone.title + " [" + milestone.open_issues + '] '
-        option value: 'ALL', 'All Milestones'
+          if milestone.number == parseInt req.session.milestone
+            option selected: 'selected', value: milestone.number, milestone.title + " [" + milestone.open_issues + '] '
+          else
+            option value: milestone.number, milestone.title + " [" + milestone.open_issues + '] '
+        if req.session.milestone?
+          option value: 'ALL', 'All Milestones'
+        else
+          option selected: 'selected', value: 'ALL', 'All Milestones'
 
   utils.showusers req, '/milestones', users
   utils.showlabels req, '/milestones/', issues
@@ -30,15 +36,46 @@ module.exports = renderable ({req, issues, users, allmilestones}) ->
     else
       nostones.push i
 
+  accum = {}
+  
   for title in Object.keys(milestones).sort utils.datesort
     milestones[title].sort utils.prisort # sub-sort based on priority
+    points = {}
     h4 'Milestone: ' + title
     ul ->
       for i in milestones[title]
-        utils.issue i
-
+        utils.issue i, points
+    showPoints points
+    accumulate accum, points
+    
   if nostones.length > 0
+    points = {}
     h4 'No milestone'
     ul ->
       for i in nostones
-        utils.issue i
+        utils.issue i, points
+    showPoints points
+    accumulate accum, points
+
+  p "Estimated team capacity: 80 points/week"
+  p "Estimated Lee capacity: 8029384023000 points/week"
+
+  showPoints accum
+
+accumulate = (accum, points) ->
+  for login, pts of points
+    accum[login] = 0 unless accum[login]
+    accum[login] += pts
+
+showPoints = (points) ->
+
+  total = 0
+  for login, pts of points
+    total += pts
+    
+  devs = ""
+  for dev, pts of points
+    devs += dev + ": " + pts + " "
+  text "Point total: " + total
+  if total > 0
+    text " (" + devs + ")"
