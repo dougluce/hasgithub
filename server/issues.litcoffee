@@ -17,74 +17,10 @@ These are the main repos for MAT.
       'MobileAppTracking/schema'
     ]
 
-These are the issues that are in development.
+# Armageddon Report
 
-    sprintIssueFilters = [
-      {state: 'open'}
-    ]
-      
-These filters show the issues that were pushed during the last
-deployment.
-
-    pushIssueFilters = [
-      {labels: 'completed', state: 'closed'}
-      {labels: 'complete - pending', state: 'closed'}
-      {labels: 'complete - pending'}
-      {labels: 'completed'}
-      {labels: 'completed', state: 'closed'}
-      {labels: 'production - review'}
-    ]
-
-A fixed milestone.
-                  
-    milestone = 3
-
-Repos we can sprints for.
-    
-    sprintRepos = [
-      'MobileAppTracking/tracking_engine'
-      'MobileAppTracking/api'
-    ]
-
-Plan a sprint.
-                  
-    exports.sprint = (user, token, res) ->
-
-Every query will have the same access token and milestone.
-
-      filters = {access_token: token}
-      filters['milestone'] = milestone if milestone?
-      getIssues = getIssuesPreFiltered filters, sprintRepos[1]
-      milestones sprintRepos[1], token, (milestones) ->
-        async.concat sprintIssueFilters, getIssues, (err, results) ->
-          results.sort (a,b) -> a.number > b.number
-          res.render 'sprint', {issues: results, milestones: milestones}
-
-This returns a curried function that'll query issues with the fixed
-filters while adding the filters given on each call.
-
-    getIssuesPreFiltered = (fixedFilters, repo) ->
-      (filters, cb) ->
-        for key, val of fixedFilters
-          filters[key] = val
-        filters = querystring.stringify filters
-        opts =
-          host: "api.github.com"
-          path: '/repos/' + repo + '/issues?' + filters
-          method: "GET"
-  
-        request = https.request opts, (resp) ->
-          data = ""
-          resp.setEncoding 'utf8'
-          resp.on 'data', (chunk) ->
-            data += chunk;
-          resp.on 'end', ->
-            cb '', JSON.parse data
-        request.end()
-
-The Armageddon Report.  Show the tickets to be done to avoid
-Armageddon (i.e. everything labeled across these repos with
-'armageddon').
+Show the tickets to be done to avoid Armageddon (i.e. everything
+labeled across these repos with 'armageddon').
 
     exports.armageddon = (user, token, res, req) ->
 
@@ -98,8 +34,9 @@ Every query will have the same access token and label.
           issues = filterByUser results, req.params.user
         res.render 'armageddon', {issues: issues, users: issueUsers results}
 
-Milestones Report.  Show the tickets to be done across repos for each
-milestone.
+# Milestones Report
+
+Show the tickets to be done across repos for each milestone.
 
     exports.milestones = (user, token, res, req) ->
       queryToSession req
@@ -121,6 +58,8 @@ Every query will have the same access token and labels.
           if req.session.user?
             issues = filterByUser issues, req.session.user
           res.render 'milestones', {req: req, issues: issues, users: users, allmilestones: milestones}
+
+## Issue finders
 
 This returns a curried function that'll query issues in the named repo
 with the given fixed filters.

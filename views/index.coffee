@@ -4,6 +4,4 @@ module.exports = renderable ->
   a href: '/armageddon', "Avoiding Armageddon issues"
   br()
   a href: '/milestones', "Issues in development by milestone"
-  br()
-  a href: '/sprint', "Sprint planner"
   
