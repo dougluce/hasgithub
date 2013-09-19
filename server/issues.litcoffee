@@ -75,8 +75,10 @@ The initial call sets up the repos this thing will query.
 
       constructor: (@repos) ->
         
-Given a parameter name and a list of values, add a separate repo query
-for each.
+For each existing filter, create a new filter for each value in the
+list.  So giving a list of three values, add three new filters for
+every existing filter we've got.  If we have no filters yet, create a
+new filter for each value.
 
       joinParamList: (name, list) =>
         results = []
@@ -91,39 +93,43 @@ for each.
             results.push i
         @filters = results
 
-      addIssues: (issues) ->
+Add the retrieved issues to our current set.  Disregard any repeated issues.
+
+      addIssues: (issues) =>
         for issue in issues
           @issues[issue.url] = issue
-                                        
+
+Get issues from a repo.  Will go over all the existing filters, and
+query the repo once for each filter.  Issues returned are added to 
+
       getIssues: (repo, cb) =>
         query = (filter, cb) =>
-          filter = querystring.stringify filter
-          @doQuery repo, filter, (junk, issues) =>
+          @doQuery repo, filter, (issues) =>
             @addIssues issues
-            cb '', issues
-        async.concat @filters, query, cb
+            cb()
+        async.each @filters, query, cb
+
+Query a single repo with a single filter, sending the received list of
+issues to the callback.
 
       doQuery: (repo, filter, cb) =>
         opts =
           host: "api.github.com"
-          path: '/repos/' + repo + '/issues?' + filter
-          method: "GET"
+          path: '/repos/' + repo + '/issues?' + querystring.stringify filter
 
         request = https.request opts, (resp) ->
           data = ""
-          resp.setEncoding 'utf8'
           resp.on 'data', (chunk) ->
             data += chunk;
           resp.on 'end', ->
             data = JSON.parse data
-            if data.message?
-              cb '', null
-            else
-              cb '', data
+            cb if data.message? then null else data
         request.end()
 
+Get the issues for this object.  Call this after setting up all the filter combinations you want.
+
       issues: (cb) =>
-        async.concat @repos, @getIssues, (err, junk) =>
+        async.each @repos, @getIssues, (err) =>
           cb _.values @issues
 
 This returns a curried function that'll query issues in the named repo
