@@ -65,8 +65,8 @@ exports.showlabels = (req, viewname, issues) ->
 
   form '.labels', ->
     for name, color of labels
-      checked = req.query['label-' + name]?
+      checked = req.session.labels? and name in req.session.labels
       label ->
         input type: 'checkbox', name: 'label-' + name, style: "background-color: #" + color, checked: checked
         text name
-    input type: 'submit', value: 'Refresh'
+    input type: 'submit', value: 'Refresh', name: 'refreshlabels'

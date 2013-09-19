@@ -44,19 +44,15 @@ Show the tickets to be done across repos for each milestone.
     exports.milestones = (user, token, res, req) ->
       queryToSession req
 
-      labels = []
-      for item, val of req.query
-        if item.indexOf('label-') == 0
-          labels.push item.replace /^label-/, ''
-          
 Every query will have the same access token and labels.
 
       isf = new IssueFilters MATRepos
       isf.joinParamList 'access_token', [token]
-      if labels.length
-        isf.joinParamList 'labels', [labels.toString()]
+      if req.session.labels?
+        for label in req.session.labels
+          isf.joinParamList 'labels', [label]
       if req.session.milestone? and req.session.milestone != 'ALL'
-        isf.joinParamList 'milestone', parseInt req.session.milestone
+        isf.joinParamList 'milestone', [parseInt req.session.milestone]
       isf.issues (issues) ->
         milestones 'MobileAppTracking/api', token, (milestones) ->
           users = issueUsers issues
@@ -105,7 +101,7 @@ query the repo once for each filter.  Issues returned are added to
       getIssues: (repo, cb) =>
         query = (filter, cb) =>
           @doQuery repo, filter, (issues) =>
-            @addIssues issues
+            @addIssues issues if issues?
             cb()
         async.each @filters, query, cb
 
@@ -186,8 +182,18 @@ Take important options in the query string and put them into the session.
         req.session.user = req.query.user
       if req.query.user == 'ALL' # Special, means no user in particular. 
         delete req.session.user
+        
       # now milestone
       if req.query.milestone?
         req.session.milestone = req.query.milestone
       if req.query.milestone == 'ALL'
         delete req.session.milestone
+        
+      # And now, the labels.
+      if req.query.refreshlabels?
+        labels = []
+        for item, val of req.query
+          if item.indexOf('label-') == 0
+            label = item.replace /^label-/, ''
+            labels.push label
+        req.session.labels = labels
