@@ -21,6 +21,7 @@
 	"node-github": ">=0.0.3",
 	"async": ">=0.2.9",
 	"everyauth": ">=0.4.5",
+	"underscore": ">=1.5.2",
 	"jade": ">=0.34.1"
     },
     "devDependencies": {
