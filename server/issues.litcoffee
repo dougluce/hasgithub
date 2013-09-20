@@ -1,10 +1,8 @@
     https = require 'https'
     querystring = require 'querystring'
     async = require 'async'
-    milestones = require './milestones'
-
     _ = require 'underscore'
-
+    milestones = require './milestones'
 
 Github treats multiple selected labels/filters as a conjunctive join.
 We're going to do this disjunctively so we can see all the different
@@ -19,23 +17,6 @@ These are the main repos for MAT.
       'MobileAppTracking/Dataflow'
       'MobileAppTracking/schema'
     ]
-
-# Armageddon Report
-
-Show the tickets to be done to avoid Armageddon (i.e. everything
-labeled across these repos with 'armageddon').
-
-    exports.armageddon = (user, token, res, req) ->
-
-Every query will have the same access token and label.
-
-      getOpenArmIssues = getRepoIssuesPreFiltered {access_token: token, labels: 'armageddon'}
-      getClosedArmIssues = getRepoIssuesPreFiltered {access_token: token, state: 'closed', labels: 'armageddon'}
-      async.concat MATRepos, getOpenArmIssues, (err, results) ->
-        issues = results
-        if req.params.user?
-          issues = filterByUser results, req.params.user
-        res.render 'armageddon', {issues: issues, users: issueUsers results}
 
 # Milestones Report
 
@@ -127,30 +108,6 @@ Get the issues for this object.  Call this after setting up all the filter combi
       issues: (cb) =>
         async.each @repos, @getIssues, (err) =>
           cb _.values @issues
-
-This returns a curried function that'll query issues in the named repo
-with the given fixed filters.
-
-    getRepoIssuesPreFiltered = (filters) ->
-      filters = querystring.stringify filters
-      (repo, cb) ->
-        opts =
-          host: "api.github.com"
-          path: '/repos/' + repo + '/issues?' + filters
-          method: "GET"
-  
-        request = https.request opts, (resp) ->
-          data = ""
-          resp.setEncoding 'utf8'
-          resp.on 'data', (chunk) ->
-            data += chunk;
-          resp.on 'end', ->
-            data = JSON.parse data
-            if data.message?
-              cb '', null
-            else
-              cb '', data
-        request.end()
 
 Given a list of issues, return an array of the logins of all the users
 that are assignees on those issues.
