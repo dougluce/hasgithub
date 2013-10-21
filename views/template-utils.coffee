@@ -1,7 +1,7 @@
 {label, li, a, br, text, b, span, div, input, form} = require 'teacup'
 sprintf = require('util').format
 
-exports.issue = (i, points, repo = null) ->
+exports.issue = (i, points, repo = null, extra = true) ->
   login = "Unassigned"
   if !repo? and repo = i.html_url.match /https:\/\/github.com\/\S+\/(\S+)\/issues/
     repo = repo[1]
@@ -10,7 +10,10 @@ exports.issue = (i, points, repo = null) ->
     login = i.assignee.login
   li ->
     b ->
-      text sprintf "%s:#%d: ", repo, i.number
+      if extra
+        text sprintf "%s:#%d: ", repo, i.number
+      else
+        text sprintf "#%d: ", i.number
       a href: i.html_url, i.title
     if est = i.body.match /Estimate: (\d+)/
       est = est[1]
@@ -20,9 +23,10 @@ exports.issue = (i, points, repo = null) ->
       points[login] += parseInt(est)
 
     br()
-    text "State: " + i.state  + " "
-    text "Assignee: " + login + " "
-    exports.labels i
+    if extra
+      text "State: " + i.state  + " "
+      text "Assignee: " + login + " "
+      exports.labels i
     return points
 
 exports.labels = (i) ->

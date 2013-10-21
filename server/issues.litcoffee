@@ -41,6 +41,23 @@ Every query will have the same access token and labels.
             issues = filterByUser issues, req.session.user
           res.render 'milestones', {req: req, issues: issues, users: users, allmilestones: milestones}
 
+# Release Report
+
+This shows the issues that are part of a particular milestone.  For
+handy copy/paste when sending out release report emails.
+
+    exports.report = (user, token, res, req) ->
+      queryToSession req
+
+Every query will have the same access token and labels.
+
+      isf = new IssueFilters ['MobileAppTracking/api']
+      isf.joinParamList 'access_token', [token]
+      isf.issues (issues) ->
+        milestones 'MobileAppTracking/api', token, (milestones) ->
+          users = issueUsers issues
+          res.render 'report', {req: req, issues: issues, users: users, allmilestones: milestones}
+
 ## Issue finders
 
 Take the existing list.  Take whatever filter is being added.  Do a

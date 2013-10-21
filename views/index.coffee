@@ -2,4 +2,5 @@
 
 module.exports = renderable ->
   a href: '/milestones', "Issues in development by milestone"
+  a href: '/report', "Release report"
   
