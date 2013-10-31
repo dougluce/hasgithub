@@ -6,7 +6,7 @@ utils = require './template-utils'
 module.exports = renderable ({req, issues, users, allmilestones}) ->
   css 'app'
   h3 ->
-    text issues.length + ' issues across all repos'
+    text issues.length + ' issues total'
 
   p ->
     form ->

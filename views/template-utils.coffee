@@ -15,8 +15,7 @@ exports.issue = (i, points, repo = null, extra = true) ->
       else
         text sprintf "#%d: ", i.number
       a href: i.html_url, i.title
-    if est = i.body.match /Estimate: (\d+)/
-      est = est[1]
+    if extra and est = exports.estimate i
       br()
       text "Points: " + est + " points"
       points[login] = 0 unless points[login]
@@ -28,6 +27,10 @@ exports.issue = (i, points, repo = null, extra = true) ->
       text "Assignee: " + login + " "
       exports.labels i
     return points
+
+exports.estimate = (issue) ->
+  if est = issue.body.match /Estimate: (\d+)/
+    return est[1]
 
 exports.labels = (i) ->
   span '.labels', ->

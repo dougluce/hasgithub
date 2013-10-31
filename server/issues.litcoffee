@@ -25,15 +25,15 @@ Show the tickets to be done across repos for each milestone.
     exports.milestones = (user, token, res, req) ->
       queryToSession req
 
-Every query will have the same access token and labels.
+Every query will have the same access token
 
       isf = new IssueFilters MATRepos
-      isf.joinParamList 'access_token', [token]
-      if req.session.labels?
+      isf.addConjunction 'access_token', token
+      if req.session.labels? # Show any ticket with any of these labels.
         for label in req.session.labels
-          isf.joinParamList 'labels', [label]
+          isf.addDisjunction 'labels', label
       if req.session.milestone? and req.session.milestone != 'ALL'
-        isf.joinParamList 'milestone', [parseInt req.session.milestone]
+        isf.addDisjunction 'milestone', parseInt req.session.milestone
       isf.issues (issues) ->
         milestones 'MobileAppTracking/api', token, (milestones) ->
           users = issueUsers issues
@@ -48,44 +48,81 @@ handy copy/paste when sending out release report emails.
 
     exports.report = (user, token, res, req) ->
       queryToSession req
+      isf = new IssueFilters ['MobileAppTracking/api']
+      isf.addConjunction 'access_token', token
+      if req.session.labels?
+        for label in req.session.labels
+          isf.addDisjunction 'labels', label
+      if req.session.milestone? and req.session.milestone != 'ALL'
+        isf.addDisjunction 'milestone', [parseInt req.session.milestone]
+      isf.issues (issues) ->
+        milestones 'MobileAppTracking/api', token, (milestones) ->
+          users = issueUsers issues
+          if req.session.user?
+            issues = filterByUser issues, req.session.user
+          res.render 'report', {req: req, issues: issues, users: users, allmilestones: milestones}
+
+# Estimated tickets.
+
+This shows the issues that have estimates on them.
+
+    exports.estimated = (user, token, res, req) ->
+      queryToSession req
 
 Every query will have the same access token and labels.
 
       isf = new IssueFilters ['MobileAppTracking/api']
-      isf.joinParamList 'access_token', [token]
+      isf.addConjunction 'access_token', token
       isf.issues (issues) ->
+        issues = issues.filter (i) -> estimate(i)?
         milestones 'MobileAppTracking/api', token, (milestones) ->
           users = issueUsers issues
-          res.render 'report', {req: req, issues: issues, users: users, allmilestones: milestones}
+          res.render 'milestones', {req: req, issues: issues, users: users, allmilestones: milestones}
+
+## Issue time estimate
+
+Give the estimate that's hidden within a comment in the body of this
+issue.
+
+    estimate = (issue) ->
+      if est = issue.body.match /Estimate: (\d+)/
+        return est[1]
+
 
 ## Issue finders
 
-Take the existing list.  Take whatever filter is being added.  Do a
-full cartesian product on it, return the resulting list.
+We have two different kinds of things we filter on when querying the
+issue list.  The first are the conjunctive filters.  All queries get
+this filter.  We can limit which milestones we query for, which users,
+and add things every query needs like auth info.
+
+The second are the disjunctive filters.  Each of these filters results
+in a new query.  Each of those queries takes all the conjunctive
+filters and adds the disjunctive filter.  This lets us do things like
+"OR" style queries across labels, milestones, or users.
+
+The resulting query is make unique based on the issue number within
+the particular repo.
 
     class IssueFilters
 
-The initial call sets up the repos this thing will query.
+The initial call sets up the repos we'll query.
 
       constructor: (@repos) ->
-        
-For each existing filter, create a new filter for each value in the
-list.  So giving a list of three values, add three new filters for
-every existing filter we've got.  If we have no filters yet, create a
-new filter for each value.
+        @conjunctiveFilters = {}
+        @disjunctiveFilters = []
 
-      joinParamList: (name, list) =>
-        results = []
-        for item in list
-          if @filters?
-            for filter in @filters
-              filter[name] = item
-              results.push filter
-          else
-            i = {}
-            i[name] = item
-            results.push i
-        @filters = results
+Add a conjunctive filter.
+
+      addConjunction: (name, value) =>
+        @conjunctiveFilters[name] = value
+
+Add a disjunctive filter.
+
+      addDisjunction: (name, value) =>
+        filter = {}
+        filter[name] = value
+        @disjunctiveFilters.push filter
 
 Add the retrieved issues to our current set.  Disregard any repeated issues.
 
@@ -94,14 +131,19 @@ Add the retrieved issues to our current set.  Disregard any repeated issues.
           @issues[issue.url] = issue
 
 Get issues from a repo.  Will go over all the existing filters, and
-query the repo once for each filter.  Issues returned are added to 
+query the repo once for each filter.  Issues returned are added to the
+list.
 
       getIssues: (repo, cb) =>
         query = (filter, cb) =>
-          @doQuery repo, filter, (issues) =>
+          qf = _.extend _.clone(@conjunctiveFilters), filter
+          @doQuery repo, qf, (issues) =>
             @addIssues issues if issues?
             cb()
-        async.each @filters, query, cb
+        if @disjunctiveFilters.length>0
+          async.each @disjunctiveFilters, query, cb
+        else # No filters, do query with only conjunctive.
+          query [], cb
 
 Query a single repo with a single filter, sending the received list of
 issues to the callback.

@@ -20,8 +20,7 @@ The main page.
       mapget '/milestones/:user', issues.milestones
       mapget '/report', issues.report
       mapget '/milestones', issues.milestones
-      mapget '/armageddon/:user', issues.armageddon
-      mapget '/armageddon', issues.armageddon
+      mapget '/estimated', issues.estimated
 
       app.get '*', (req, res) ->
         res.status 404
