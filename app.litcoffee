@@ -5,13 +5,7 @@
     teacup = require 'teacup'
     everyauth = require('everyauth')
 
-    config =
-      development:
-        ghClientId: '6fa758b2f1d037fcb311'
-        ghSecret: 'ca8e4785d95d181565effa3a056df83a2306c24f'
-      production:
-        ghClientId: '99561e4c5799754897da'
-        ghSecret: 'fe0047c698edd16789940a5a544ab3ab889a76e4'
+    config = require process.env.HOME + '/.gitconfig.json'
 
     connectConfig =
       src: 'public'
