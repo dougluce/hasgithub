@@ -5,6 +5,8 @@
         host: "api.github.com"
         path: '/repos/' + repo + '/milestones?access_token=' + token
         method: "GET"
+        headers:
+          'User-Agent': 'MAT Github API getter'
 
       request = https.request opts, (resp) ->
         data = ""

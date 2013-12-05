@@ -27,8 +27,7 @@ Show the tickets to be done across repos for each milestone.
 
 Every query will have the same access token
 
-      isf = new IssueFilters MATRepos
-      isf.addConjunction 'access_token', token
+      isf = new IssueFilters MATRepos, token
       if req.session.labels? # Show any ticket with any of these labels.
         for label in req.session.labels
           isf.addDisjunction 'labels', label
@@ -48,8 +47,7 @@ handy copy/paste when sending out release report emails.
 
     exports.report = (user, token, res, req) ->
       queryToSession req
-      isf = new IssueFilters ['MobileAppTracking/api']
-      isf.addConjunction 'access_token', token
+      isf = new IssueFilters ['MobileAppTracking/api'], token
       if req.session.labels?
         for label in req.session.labels
           isf.addDisjunction 'labels', label
@@ -71,8 +69,7 @@ This shows the issues that have estimates on them.
 
 Every query will have the same access token and labels.
 
-      isf = new IssueFilters ['MobileAppTracking/api']
-      isf.addConjunction 'access_token', token
+      isf = new IssueFilters ['MobileAppTracking/api'], token
       isf.issues (issues) ->
         issues = issues.filter (i) -> estimate(i)?
         milestones 'MobileAppTracking/api', token, (milestones) ->
@@ -94,11 +91,7 @@ This is just for the API repo.  Show where everything is in the sprint.
 
     exports.sprint = (user, token, res, req) ->
       queryToSession req
-
-Every query will have the same access token
-
-      isf = new IssueFilters ['MobileAppTracking/api']
-      isf.addConjunction 'access_token', token
+      isf = new IssueFilters ['MobileAppTracking/api'], token
       if req.session.labels? # Show any ticket with any of these labels.
         for label in req.session.labels
           isf.addDisjunction 'labels', label
@@ -128,11 +121,13 @@ the particular repo.
 
     class IssueFilters
 
-The initial call sets up the repos we'll query.
+The initial call sets up the repos we'll query.  Every call requires
+an access token, so we request it here.
 
-      constructor: (@repos) ->
+      constructor: (@repos, access_token) ->
         @conjunctiveFilters = {}
         @disjunctiveFilters = []
+        @addConjunction 'access_token', access_token
 
 Add a conjunctive filter.
 
@@ -174,6 +169,8 @@ issues to the callback.
         opts =
           host: "api.github.com"
           path: '/repos/' + repo + '/issues?' + querystring.stringify filter
+          headers:
+             'User-Agent': 'MAT Github API getter'
 
         request = https.request opts, (resp) ->
           data = ""
