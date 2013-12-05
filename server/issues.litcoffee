@@ -33,7 +33,7 @@ Every query will have the same access token
         for label in req.session.labels
           isf.addDisjunction 'labels', label
       if req.session.milestone? and req.session.milestone != 'ALL'
-        isf.addDisjunction 'milestone', parseInt req.session.milestone
+        isf.addConjunction 'milestone', parseInt req.session.milestone
       isf.issues (issues) ->
         milestones 'MobileAppTracking/api', token, (milestones) ->
           users = issueUsers issues
