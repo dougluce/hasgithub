@@ -88,6 +88,28 @@ issue.
       if est = issue.body.match /Estimate: (\d+)/
         return est[1]
 
+# Sprint report
+
+This is just for the API repo.  Show where everything is in the sprint.
+
+    exports.sprint = (user, token, res, req) ->
+      queryToSession req
+
+Every query will have the same access token
+
+      isf = new IssueFilters ['MobileAppTracking/api']
+      isf.addConjunction 'access_token', token
+      if req.session.labels? # Show any ticket with any of these labels.
+        for label in req.session.labels
+          isf.addDisjunction 'labels', label
+      if req.session.milestone? and req.session.milestone != 'ALL'
+        isf.addConjunction 'milestone', parseInt req.session.milestone
+      isf.issues (issues) ->
+        milestones 'MobileAppTracking/api', token, (milestones) ->
+          users = issueUsers issues
+          if req.session.user?
+            issues = filterByUser issues, req.session.user
+          res.render 'sprint', {req: req, issues: issues, users: users, allmilestones: milestones}
 
 ## Issue finders
 
