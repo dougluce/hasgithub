@@ -40,35 +40,20 @@ module.exports = renderable ({req, issues, users, allmilestones}) ->
   
   for title in Object.keys(milestones).sort utils.datesort
     milestones[title].sort utils.prisort # sub-sort based on priority
-    points = {}
-    h4 'Milestone: ' + title + ' -- ' + milestones[title].length + ' issues'
-    ul ->
-      for i in milestones[title]
-        utils.issue i, points
-    showPoints points
-    accumulate accum, points
+    showissues 'Milestone: ' + title + ' -- ' + milestones[title].length + ' issues', milestones[title]
     
   if nostones.length > 0
-    points = {}
-    h4 'No milestone'
-    ul ->
-      for i in nostones
-        utils.issue i, points
-    showPoints points
-    accumulate accum, points
+    showissues 'No milestone', nostones
 
-  p "Estimated team capacity: 80 points/week"
-  p "Estimated Lee capacity: 8029384023000 points/week"
-
-  showPoints accum
-
-accumulate = (accum, points) ->
-  for login, pts of points
-    accum[login] = 0 unless accum[login]
-    accum[login] += pts
+showissues = (title, issues) ->
+  points = {}
+  h4 title
+  ul ->
+    for i in issues
+      utils.issue i, points
+  showPoints points
 
 showPoints = (points) ->
-
   total = 0
   for login, pts of points
     total += pts

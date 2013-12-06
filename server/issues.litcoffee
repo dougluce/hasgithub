@@ -127,6 +127,11 @@ an access token, so we request it here.
       constructor: (@repos, access_token) ->
         @conjunctiveFilters = {}
         @disjunctiveFilters = []
+
+Make sure we get the maximum allowed issues.  If we have more than this, we'd need
+to query for multiple pages.
+
+        @addConjunction 'per_page', 100
         @addConjunction 'access_token', access_token
 
 Add a conjunctive filter.
