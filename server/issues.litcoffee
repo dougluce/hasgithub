@@ -27,7 +27,7 @@ Show the tickets to be done across repos for each milestone.
 
 Every query will have the same access token
 
-      isf = new IssueFilters MATRepos, token
+      isf = new IssueFilters ['MobileAppTracking/api'], token
       if req.session.labels? # Show any ticket with any of these labels.
         for label in req.session.labels
           isf.addDisjunction 'labels', label
@@ -48,9 +48,7 @@ handy copy/paste when sending out release report emails.
     exports.report = (user, token, res, req) ->
       queryToSession req
       isf = new IssueFilters ['MobileAppTracking/api'], token
-      if req.session.labels?
-        for label in req.session.labels
-          isf.addDisjunction 'labels', label
+      isf.addDisjunction 'labels', 'production - review'
       if req.session.milestone? and req.session.milestone != 'ALL'
         isf.addDisjunction 'milestone', [parseInt req.session.milestone]
       isf.issues (issues) ->
