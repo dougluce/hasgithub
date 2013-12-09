@@ -35,7 +35,7 @@ exports.estimate = (issue) ->
 exports.labels = (i) ->
   span '.labels', ->
     for ghlabel in i.labels
-      span '.label', style: "background-color: #" + ghlabel.color, ghlabel.name
+      span '.label', style: labelColors(ghlabel.color), ghlabel.name
 
 priority = (issue) ->
   for l in issue.labels
@@ -74,6 +74,15 @@ exports.showlabels = (req, viewname, issues) ->
     for name, color of labels
       checked = req.session.labels? and name in req.session.labels
       label ->
-        input type: 'checkbox', name: 'label-' + name, style: "background-color: #" + color, checked: checked
+        input type: 'checkbox', name: 'label-' + name, style: labelColors(color), checked: checked
         text name
     input type: 'submit', value: 'Refresh', name: 'refreshlabels'
+
+labelColors = (color) ->
+  colorVal = parseInt(color,16)
+  luminance = (colorVal & 0xff) * 0.2126 + ((colorVal & 0xff00) >> 8) * 0.7152 + ((colorVal & 0xff0000) >> 16) * 0.0722
+  if luminance > 120
+    fontColor = "black"
+  else
+    fontColor = "white"
+  "background-color: #" + color + "; color: " + fontColor
