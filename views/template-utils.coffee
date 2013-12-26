@@ -43,12 +43,17 @@ priority = (issue) ->
       return pri[1]
   return 9999
 
-exports.prisort = (a,b) ->
+exports.pricompare = (a,b) ->
   return -1 if priority(a) < priority(b)
   return 1 if priority(a) > priority(b)
   return 0
 
-exports.datesort = (a,b) ->
+exports.idcompare = (a,b) ->
+  return -1 if a.id < b.id
+  return 1 if a.id > b.id
+  return 0
+
+exports.datecompare = (a,b) ->
   a = new Date(a)
   b = new Date(b)
   return -1 if a<b

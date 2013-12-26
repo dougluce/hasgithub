@@ -22,18 +22,15 @@ module.exports = renderable ({req, issues, users, allmilestones}) ->
 
   accum = {}
   
-  for title in Object.keys(milestones).sort utils.datesort
-    milestones[title].sort utils.prisort # sub-sort based on priority
-    points = {}
+  for title in Object.keys(milestones).sort utils.datecompare
     h4 'Milestone: ' + title
     ul ->
-      for i in milestones[title]
-        utils.issue i, points, null, false
+      for i in milestones[title].sort utils.idcompare # Increasing by id
+        utils.issue i, null, null, false
     
   if nostones.length > 0
-    points = {}
     h4 'No milestone'
     ul ->
       for i in nostones
-        utils.issue i, points, null, false
+        utils.issue i, null, null, false
 

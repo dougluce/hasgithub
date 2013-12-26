@@ -38,8 +38,8 @@ module.exports = renderable ({req, issues, users, allmilestones}) ->
 
   accum = {}
   
-  for title in Object.keys(milestones).sort utils.datesort
-    milestones[title].sort utils.prisort # sub-sort based on priority
+  for title in Object.keys(milestones).sort utils.datecompare
+    milestones[title].sort utils.pricompare # sub-sort based on priority
     points = {}
     h4 'Milestone: ' + title
     ul ->
